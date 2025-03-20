@@ -1,19 +1,31 @@
-resource "aws_instance" "expense" {
-  count = length(var.instances) #count == 3 it will create the 3 ec2 
+resource "aws_instance" "this" {
   ami                     = "ami-09c813fb71547fc4f"
   vpc_security_group_ids  = [aws_security_group.allow_tls.id]
   instance_type           = "t3.micro"
   
-  /* tags={
-    Name= var.instances[count.index]
-  } */
-  tags = merge(
-    var.common_tags,
-    {
-      Name = var.instances[count.index]
-    }
-  )
+  tags={
+    Name= "terraform-demo"
+    Purpose = "Terraform-practice"
+  }
+  provisioner "local-exec" {
+    command = "echo ${self.private_ip} > inventory"
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "sudo dnf install nginx -y",
+      "sudo systemctl start nginx",
+    ]
+  }
+   connection {
+    type     = "ssh"
+    user     = "ec2-user"
+    password = "DevOps321"
+    host     = self.public_ip
+  }
+
 }
+  
+
 
 resource "aws_security_group" "allow_tls" {
   name        = "allow_tls"

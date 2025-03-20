@@ -1,18 +1,13 @@
-resource "aws_instance" "expense" {
-  count = length(var.instances) #count == 3 it will create the 3 ec2 
+resource "aws_instance" "this" {
+  for_each = var.instances
   ami                     = "ami-09c813fb71547fc4f"
   vpc_security_group_ids  = [aws_security_group.allow_tls.id]
-  instance_type           = "t3.micro"
+  instance_type           = each.value
   
-  /* tags={
-    Name= var.instances[count.index]
-  } */
-  tags = merge(
-    var.common_tags,
-    {
-      Name = var.instances[count.index]
-    }
-  )
+  tags={
+    Name = each.key
+    Purpose = "Terraform-practice"
+  }
 }
 
 resource "aws_security_group" "allow_tls" {

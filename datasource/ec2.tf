@@ -1,18 +1,12 @@
-resource "aws_instance" "expense" {
-  count = length(var.instances) #count == 3 it will create the 3 ec2 
-  ami                     = "ami-09c813fb71547fc4f"
+resource "aws_instance" "this" {
+  ami                     = data.aws_ami.joindevops.id
   vpc_security_group_ids  = [aws_security_group.allow_tls.id]
   instance_type           = "t3.micro"
   
-  /* tags={
-    Name= var.instances[count.index]
-  } */
-  tags = merge(
-    var.common_tags,
-    {
-      Name = var.instances[count.index]
-    }
-  )
+  tags={
+    Name= "terraform-demo"
+    Purpose = "Terraform-practice"
+  }
 }
 
 resource "aws_security_group" "allow_tls" {
